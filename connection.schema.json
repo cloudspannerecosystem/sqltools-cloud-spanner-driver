@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "project": {
+      "title": "Google Cloud Project ID",
+      "type": "string",
+      "minLength": 1
+    },
+    "instance": {
+      "title": "Cloud Spanner Instance ID",
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 64
+    },
+    "database": {
+      "title": "Cloud Spanner Database ID",
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 30
+    },
+    "credentialsKeyFile": {
+      "title": "Credentials Key File (optional)",
+      "$comment": "Specifying a credentials file is optional. If no file is specified, the default Google credentials on this environment will be used",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project",
+    "instance",
+    "database"
+  ]
+}

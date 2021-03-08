@@ -1,0 +1,49 @@
+{
+  "name": "google-cloud-spanner-driver",
+  "displayName": "Google Cloud Spanner Driver",
+  "description": "Google Cloud Spanner Driver for SQLTools",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.42.0"
+  },
+  "publisher": "Google",
+  "license": "Apache",
+  "repository": {},
+  "bugs": {},
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "keywords": [
+    "google-cloud-spanner-driver",
+    "sqltools-driver"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Formatters",
+    "Other"
+  ],
+  "extensionDependencies": [
+    "mtxr.sqltools"
+  ],
+  "activationEvents": [
+    "*",
+    "onLanguage:sql",
+    "onCommand:sqltools.*"
+  ],
+  "main": "./out/extension.js",
+  "dependencies": {
+    "@google-cloud/spanner": "file:/home/loite/WebstormProjects/nodejs-spanner-knut",
+    "@sqltools/base-driver": "latest",
+    "@sqltools/types": "latest",
+    "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.5.5",
+    "@types/node": "^14.0.9",
+    "@types/vscode": "^1.42.0",
+    "typescript": "^3.7.3"
+  }
+}

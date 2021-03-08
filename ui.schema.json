@@ -1,0 +1,4 @@
+{
+  "ui:order": ["project", "instance", "database", "credentials"],
+  "credentials": { "ui:widget": "file" }
+}
