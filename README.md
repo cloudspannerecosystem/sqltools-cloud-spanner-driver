@@ -1,9 +1,13 @@
 # SQLTools Cloud Spanner Driver
 
-Google Cloud Spanner driver for VS Code SQLTools: https://vscode-sqltools.mteixeira.dev/
+[Google Cloud Spanner](https://cloud.google.com/spanner) driver for [VS Code SQLTools](https://vscode-sqltools.mteixeira.dev/).
 
 This driver supports executing queries and DML statements on Cloud Spanner databases, as
 well as browsing through the tables and views of a database.
+
+## Installation
+
+Install the driver from the VS Code Marketplace page.
 
 ## Limitations
 
@@ -14,5 +18,3 @@ well as browsing through the tables and views of a database.
 ## License
 * See [LICENSE](LICENSE)
 
-[Cloud Spanner](https://cloud.google.com/spanner) driver for
-[SQLTools](https://vscode-sqltools.mteixeira.dev/) VS Code extension.
