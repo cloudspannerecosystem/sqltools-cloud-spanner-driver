@@ -23,6 +23,10 @@ WHERE TABLE_CATALOG = ''
   AND TABLE_NAME    = '${p => p.label}'
 `;
 
+/**
+ * Query that is used to fetch the columns of a single table/view. This is used in the object browser to
+ * generate the column list of a table/view.
+ */
 const fetchColumns: IBaseQueries['fetchColumns'] = queryFactory`
 SELECT
   C.COLUMN_NAME AS label,
@@ -59,6 +63,7 @@ SELECT count(1) AS total
 FROM ${p => (p.table.label || p.table)};
 `;
 
+/** Fetches the tables and views of a single schema. */
 const fetchTablesAndViews = (type: ContextValue): IBaseQueries['fetchTables'] => queryFactory`
 SELECT '${p => p.database}' AS database,
        TABLE_SCHEMA AS schema,
@@ -76,6 +81,7 @@ ORDER BY TABLE_NAME
 const fetchTables: IBaseQueries['fetchTables'] = fetchTablesAndViews(ContextValue.TABLE);
 const fetchViews: IBaseQueries['fetchTables'] = fetchTablesAndViews(ContextValue.VIEW);
 
+/** Query that is used to search for available tables/views in a schema. */
 const searchTables: IBaseQueries['searchTables'] = queryFactory`
 SELECT CASE WHEN TABLE_SCHEMA='' THEN TABLE_NAME ELSE TABLE_SCHEMA || '.' || TABLE_NAME END AS label,
        CASE WHEN TABLE_SCHEMA='' THEN 'TABLE' ELSE 'VIEW' END AS type
@@ -90,6 +96,7 @@ WHERE TABLE_CATALOG = ''
 ORDER BY TABLE_NAME
 `;
 
+/** Query that is used to search for available columns in a table/view. */
 const searchColumns: IBaseQueries['searchColumns'] = queryFactory`
 SELECT C.COLUMN_NAME AS label,
        C.TABLE_NAME AS table,
@@ -114,6 +121,11 @@ ORDER BY C.COLUMN_NAME ASC, C.ORDINAL_POSITION ASC
 LIMIT ${p => p.limit || 100}
 `;
 
+/**
+ * Query for getting the schemata in a database. The default schema is nameless in Cloud Spanner. This
+ * schema is returned with the label '(default)' by this query to make it easier to select and use in
+ * the object browser.
+ */
 const fetchSchemas: IBaseQueries['fetchSchemas'] = queryFactory`
 SELECT
   CASE WHEN SCHEMA_NAME = '' THEN '(default)' ELSE SCHEMA_NAME END AS label,
