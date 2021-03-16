@@ -102,8 +102,10 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
   }
 
   private async executeDml(db: Database, sql: string, opt): Promise<NSDatabase.IResult> {
-    const [rowCount] = await db.runTransactionAsync((transaction): Promise<RunUpdateResponse> => {
-      return transaction.runUpdate(sql);
+    const [rowCount] = await db.runTransactionAsync(async (transaction): Promise<RunUpdateResponse> => {
+      const count = await transaction.runUpdate(sql);
+      await transaction.commit();
+      return count;
     });
     return {
       cols: ['rowCount'],
