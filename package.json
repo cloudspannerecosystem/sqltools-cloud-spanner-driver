@@ -2,14 +2,19 @@
   "name": "google-cloud-spanner-driver",
   "displayName": "Google Cloud Spanner Driver",
   "description": "Google Cloud Spanner Driver for SQLTools",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.42.0"
   },
-  "publisher": "Google",
+  "publisher": "google-cloud-spanner-ecosystem",
   "license": "Apache",
-  "repository": {},
-  "bugs": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudspannerecosystem/sqltools-cloud-spanner-driver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cloudspannerecosystem/sqltools-cloud-spanner-driver/issues"
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
