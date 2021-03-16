@@ -42,7 +42,7 @@
   ],
   "main": "./out/extension.js",
   "dependencies": {
-    "@google-cloud/spanner": "file:/home/loite/WebstormProjects/nodejs-spanner-knut",
+    "@google-cloud/spanner": "latest",
     "@sqltools/base-driver": "latest",
     "@sqltools/types": "latest",
     "uuid": "^7.0.2"
