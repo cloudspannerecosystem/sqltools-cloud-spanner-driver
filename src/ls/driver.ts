@@ -1,3 +1,18 @@
+/**
+ * Copyright 2021 Google LLC
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import AbstractDriver from '@sqltools/base-driver';
 import queries from './queries';
 import { IConnectionDriver, MConnectionExplorer, NSDatabase, ContextValue, Arg0 } from '@sqltools/types';
@@ -8,6 +23,7 @@ import { SpannerQueryParser, StatementType } from './parser';
 
 type DriverLib = Database;
 type DriverOptions = SpannerOptions;
+const MAX_QUERY_RESULTS = 100000;
 
 export default class CloudSpannerDriver extends AbstractDriver<DriverLib, DriverOptions> implements IConnectionDriver {
   private _databaseId: string;
@@ -58,6 +74,20 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
   }
 
   private async executeQuery(db: Database, sql: string, opt): Promise<NSDatabase.IResult> {
+    const countQuery = `SELECT COUNT(*) FROM (${sql})`;
+    const [count] = await db.run(countQuery);
+    const recordCount = count[0][0].value.value;
+    if (recordCount > MAX_QUERY_RESULTS) {
+      return {
+        cols: ['Error'],
+        connId: this.getId(),
+        messages: [{ date: new Date(), message: `Query result is too large with ${recordCount} results. Limit the query results to max ${MAX_QUERY_RESULTS} and rerun the query.`}],
+        results: [{Error: `Query result is too large with ${recordCount} results. Limit the query results to max ${MAX_QUERY_RESULTS} and rerun the query.`}],
+        query: sql,
+        requestId: opt.requestId,
+        resultId: generateId(),
+      };
+    }
     const [rows, , metadata] = await db.run({sql, json: true, jsonOptions: {wrapNumbers: true, includeNameless: true}});
     const cols = metadata.rowType.fields.map((field, index) => field.name ? field.name : `_${index}`);
     return {
@@ -168,31 +198,3 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     return this.completionsCache;
   }
 }
-
-/*
-enum StatementType {
-  UNSPECIFIED,
-  QUERY,
-  DML,
-  DDL,
-}
-
-class StatementParser {
-  static parse(sql: string): StatementType {
-    if (!sql) {
-      return StatementType.UNSPECIFIED;
-    }
-    const statement = sql.trim().toUpperCase();
-    if (statement.startsWith('SELECT') || statement.startsWith('WITH')) {
-      return StatementType.QUERY;
-    }
-    if (statement.startsWith('INSERT') || statement.startsWith('UPDATE') || statement.startsWith('DELETE')) {
-      return StatementType.DML;
-    }
-    if (statement.startsWith('CREATE') || statement.startsWith('ALTER') || statement.startsWith('DROP')) {
-      return StatementType.DDL;
-    }
-    return StatementType.UNSPECIFIED;
-  }
-}
-*/

@@ -9,3 +9,4 @@ out/
 !.vscode/extensions.json
 
 **/.history
+package-lock.json
