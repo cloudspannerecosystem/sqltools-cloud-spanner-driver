@@ -16,6 +16,13 @@
     "watch": "tsc -watch -p ./"
   },
   "keywords": [
+    "spanner",
+    "cloud spanner",
+    "cloud-spanner",
+    "google spanner",
+    "google-spanner",
+    "google cloud spanner",
+    "google-cloud-spanner",
     "google-cloud-spanner-driver",
     "sqltools-driver"
   ],

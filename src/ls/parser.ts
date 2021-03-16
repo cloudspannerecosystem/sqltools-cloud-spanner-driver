@@ -1,4 +1,19 @@
-export enum StatementType {
+/**
+ * Copyright 2021 Google LLC
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+ export enum StatementType {
   UNSPECIFIED,
   QUERY,
   DML,
@@ -25,7 +40,6 @@ export class SpannerQueryParser {
 
   static getFirstKeywordOutsideComments(sql: string): string {
     var charArray: Array<string> = Array.from(sql);
-    var previousChar: string = null;
     var nextChar: string = null;
     var isInComment: boolean = false;
     var commentChar: string = null;
@@ -33,9 +47,6 @@ export class SpannerQueryParser {
     var keyword: string = '';
     for (var index = 0; index < charArray.length; index++) {
       var char = charArray[index];
-      if (index > 0) {
-        previousChar = charArray[index - 1];
-      }
 
       if ((index + 1) < charArray.length) {
         nextChar = charArray[index + 1];
