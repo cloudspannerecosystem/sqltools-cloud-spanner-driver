@@ -205,7 +205,7 @@ export class SpannerQueryParser {
   }
 
   static getQueryParts(query: string, splittingIndex: number, numChars: number = 1): Array<string> {
-    var statement: string = query.substring(0, splittingIndex);
+    var statement: string = query.substring(0, splittingIndex - 1);
     var restOfQuery: string = query.substring(splittingIndex + numChars);
     var result: Array<string> = [];
     if (statement != null) {
