@@ -20,6 +20,15 @@
   DDL,
 }
 
+/**
+ * A simple statement parser that tries to detect the type of statement that will be executed.
+ * It does not try to verify the validity of a statement, only the type, and based on the
+ * returned type the driver will execute the statement as a single query using a single-use
+ * read-only transaction, or a DML statement that is wrapped in a read/write transaction.
+ * 
+ * Multiple DML statements that are executed as a single script are each executed in separate
+ * transactions.
+ */
 export class SpannerQueryParser {
   static getStatementType(sql: string): StatementType {
     if (!sql) {
@@ -38,6 +47,10 @@ export class SpannerQueryParser {
     return StatementType.UNSPECIFIED;
   }
 
+  /**
+   * Looks for the first word in a sql statement that is not inside a comment. This first word is
+   * used to determine the type of statement that will be executed.
+   */
   static getFirstKeywordOutsideComments(sql: string): string {
     var charArray: Array<string> = Array.from(sql);
     var nextChar: string = null;
@@ -88,6 +101,12 @@ export class SpannerQueryParser {
     return keyword;
   }
 
+  /**
+   * Parses a set of statements that may be separated by semicolons and returns these
+   * as an array. Each element in the returned array will be executed as a separate
+   * statement. If the text does not contain any semicolons the input will be treated
+   * as one single statement.
+   */
   static parse(query: string): Array<string> {
     const delimiter: string = ';';
     var queries: Array<string> = [];
@@ -204,6 +223,10 @@ export class SpannerQueryParser {
     return resultQueries;
   }
 
+  /**
+   * Splits the given input query into two parts: The first statement and the rest.
+   * The rest can be parsed further to extract the remaining statements.
+   */
   static getQueryParts(query: string, splittingIndex: number, numChars: number = 1): Array<string> {
     var statement: string = query.substring(0, splittingIndex - 1);
     var restOfQuery: string = query.substring(splittingIndex + numChars);
@@ -214,29 +237,5 @@ export class SpannerQueryParser {
     result.push(statement);
     result.push(restOfQuery);
     return result;
-  }
-
-  static clearTextUntilComment(text: string): string {
-    var nextChar: string = null;
-    var charArray: Array<string> = Array.from(text);
-    var clearedText: string = null;
-    for (var index = 0; index < charArray.length; index++) {
-      var char = charArray[index];
-
-      if (index < charArray.length) {
-        nextChar = charArray[index + 1];
-      }
-
-      if ((char == '#' && nextChar == ' ') || (char == '-' && nextChar == '-') || (char == '/' && nextChar == '*')) {
-        break;
-      } else {
-        if (clearedText == null) {
-          clearedText = '';
-        }
-        clearedText += char;
-      }
-    }
-
-    return clearedText;
   }
 }

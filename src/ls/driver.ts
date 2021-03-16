@@ -23,6 +23,11 @@ import { SpannerQueryParser, StatementType } from './parser';
 
 type DriverLib = Database;
 type DriverOptions = SpannerOptions;
+
+/**
+ * Max number of results allowed in a query. This prevents out-of-memory errors or queries that run
+ * for an unreasonable long time if the user forgets to add a limit clause to the query.
+ */
 const MAX_QUERY_RESULTS = 100000;
 
 export default class CloudSpannerDriver extends AbstractDriver<DriverLib, DriverOptions> implements IConnectionDriver {
@@ -52,6 +57,10 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     this.connection = null;
   }
 
+  /**
+   * Executes a set of queries and/or DML statements on Cloud Spanner. Multiple statements must be
+   * separated by semicolons. DDL statements are currently not supported.
+   */
   public query: (typeof AbstractDriver)['prototype']['query'] = async (queries, opt = {}) => {
     const db = await this.open();
     const resultsAgg: NSDatabase.IResult[] = [];
@@ -73,6 +82,11 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     return resultsAgg;
   }
 
+  /**
+   * Executes a statement as a query and returns the results as an array of objects.
+   * The method will first execute a count query to check that the results will not
+   * exceed the maximum number of allowed results.
+   */
   private async executeQuery(db: Database, sql: string, opt): Promise<NSDatabase.IResult> {
     const countQuery = `SELECT COUNT(*) FROM (${sql})`;
     const [count] = await db.run(countQuery);
@@ -101,6 +115,10 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     };
   }
 
+  /**
+   * Executes a statement as a DML statement in a single transaction and returns the update
+   * count as a single-element object array.
+   */
   private async executeDml(db: Database, sql: string, opt): Promise<NSDatabase.IResult> {
     const [rowCount] = await db.runTransactionAsync(async (transaction): Promise<RunUpdateResponse> => {
       const count = await transaction.runUpdate(sql);
@@ -134,6 +152,14 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     await this.query('SELECT 1', {});
   }
 
+  /**
+   * Retrieves the child items of the given parent from the INFORMATION_SCHEMA.
+   * Parent can be one of:
+   * 1. A connection to a database: Returns the schemas in the database.
+   * 2. A schema: Returns a fixed resource group collection of 'Tables' and 'Views'.
+   * 3. A resource group ('Tables' or 'Views'): Returns the tables or views of the parent schema.
+   * 4. A table or view: Returns the columns of the table or view.
+   */
   public async getChildrenForItem({ item, parent }: Arg0<IConnectionDriver['getChildrenForItem']>) {
     switch (item.type) {
       case ContextValue.CONNECTION:
@@ -153,6 +179,9 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     return [];
   }
 
+  /**
+   * Returns all instances of the specified parent resource group ('Tables' or 'Views').
+   */
   private async getChildrenForGroup({ parent, item }: Arg0<IConnectionDriver['getChildrenForItem']>) {
     switch (item.childType) {
       case ContextValue.TABLE:
@@ -163,6 +192,10 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     return [];
   }
 
+  /**
+   * Searches for all items of the specified type that matches the search string. The item type can be
+   * TABLE, VIEW or COLUMN. The queries that are used for searching are defined in queries.ts.
+   */
   public async searchItems(itemType: ContextValue, search: string, _extraParams: any = {}): Promise<NSDatabase.SearchableItem[]> {
     switch (itemType) {
       case ContextValue.TABLE:
