@@ -7,6 +7,7 @@
     "vscode": "^1.42.0"
   },
   "publisher": "google-cloud-spanner-ecosystem",
+  "icon": "icons/default.png",
   "license": "Apache",
   "repository": {
     "type": "git",
@@ -47,9 +48,9 @@
   ],
   "main": "./out/extension.js",
   "dependencies": {
-    "@google-cloud/spanner": "latest",
     "@sqltools/base-driver": "latest",
     "@sqltools/types": "latest",
+    "@google-cloud/spanner": "latest",
     "uuid": "^7.0.2"
   },
   "devDependencies": {
