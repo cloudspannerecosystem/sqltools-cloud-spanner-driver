@@ -17,12 +17,4 @@ import { IDriverAlias } from '@sqltools/types';
 
 export const DRIVER_ALIASES: IDriverAlias[] = [
   { displayName: 'Google Cloud Spanner Driver', value: 'Google Cloud Spanner Driver'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Google-Cloud-Spanner-Driver'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Spanner'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Cloud Spanner'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Cloud-Spanner'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Google Spanner'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Google-Spanner'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Google Cloud Spanner'},
-  { displayName: 'Google Cloud Spanner Driver', value: 'Google-Cloud-Spanner'},
 ];
