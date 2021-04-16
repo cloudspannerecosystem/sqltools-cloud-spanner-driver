@@ -8,13 +8,13 @@
       "minLength": 1
     },
     "instance": {
-      "title": "Cloud Spanner Instance ID",
+      "title": "Spanner Instance ID",
       "type": "string",
       "minLength": 2,
       "maxLength": 64
     },
     "database": {
-      "title": "Cloud Spanner Database ID",
+      "title": "Spanner Database ID",
       "type": "string",
       "minLength": 2,
       "maxLength": 30
@@ -22,6 +22,18 @@
     "credentialsKeyFile": {
       "title": "Credentials Key File (optional)",
       "$comment": "Specifying a credentials file is optional. If no file is specified, the default Google credentials on this environment will be used",
+      "type": "string"
+    },
+    "connectToEmulator": {
+      "title": "Connect to emulator",
+      "type": "boolean"
+    },
+    "emulatorHost": {
+      "title": "Emulator host",
+      "type": "string"
+    },
+    "emulatorPort": {
+      "title": "Emulator port",
       "type": "string"
     }
   },

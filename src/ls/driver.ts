@@ -18,6 +18,7 @@ import queries from './queries';
 import { IConnectionDriver, MConnectionExplorer, NSDatabase, ContextValue, Arg0 } from '@sqltools/types';
 import { v4 as generateId } from 'uuid';
 import {Database, Spanner, SpannerOptions} from '@google-cloud/spanner';
+import {grpc} from 'google-gax';
 import { RunUpdateResponse } from '@google-cloud/spanner/build/src/transaction';
 import { SpannerQueryParser, StatementType } from './parser';
 
@@ -38,12 +39,41 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     if (this.connection) {
       return this.connection;
     }
-    const options = {} as SpannerOptions;
+    let options = {} as SpannerOptions;
     options.projectId = this.credentials.project;
     options.keyFile = this.credentials.credentialsKeyFile;
+    if (this.credentials.connectToEmulator) {
+      options = Object.assign(options, {
+        servicePath: this.credentials.emulatorHost || 'localhost',
+        port: +(this.credentials.emulatorPort || '9010'),
+        sslCreds: grpc.credentials.createInsecure(),
+      });
+    }
     const spanner = new Spanner(options);
     const instance = spanner.instance(this.credentials.instance);
+    if (this.credentials.connectToEmulator) {
+      const [exists] = await instance.exists();
+      if (!exists) {
+        const [, operation] = await instance.create({
+          config: 'emulator-config',
+          nodes: 1,
+          displayName: 'Auto-created emulator instance',
+        });
+        await operation.promise();
+      }
+    }
+    if (this.credentials.connectToEmulator) {
+      // This prevents the client library from trying to initialize a session pool
+      // on a database that may not exist.
+      const database = instance.database(this.credentials.database, {min: 0});
+      const [exists] = await database.exists();
+      if (!exists) {
+        const [, operation] = await instance.createDatabase(this.credentials.database);
+        await operation.promise();
+      }
+    }
     const database = instance.database(this.credentials.database);
+
     this._databaseId = this.credentials.database;
 
     this.connection = Promise.resolve(database);
@@ -59,7 +89,7 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
 
   /**
    * Executes a set of queries and/or DML statements on Cloud Spanner. Multiple statements must be
-   * separated by semicolons. DDL statements are currently not supported.
+   * separated by semicolons.
    */
   public query: (typeof AbstractDriver)['prototype']['query'] = async (queries, opt = {}) => {
     const db = await this.open();
@@ -75,6 +105,8 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
           resultsAgg.push(await this.executeDml(db, sql, opt));
           break;
         case StatementType.DDL:
+          resultsAgg.push(await this.executeDdl(db, sql, opt));
+          break;
         case StatementType.UNSPECIFIED:
           throw new Error(`Unsupported statement: ${sql}`);
       }
@@ -130,6 +162,26 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
       connId: this.getId(),
       messages: [{ date: new Date(), message: `Update ok with ${rowCount} updated rows`}],
       results: [{rowCount}],
+      query: sql,
+      requestId: opt.requestId,
+      resultId: generateId(),
+    };
+  }
+
+  /**
+   * Executes a statement as a DDL statement.
+   */
+  private async executeDdl(db: Database, sql: string, opt): Promise<NSDatabase.IResult> {
+    const [operation] = await db.updateSchema({statements: [sql]});
+    await new Promise(function(resolve, reject) {
+      operation.on("complete", resolve);
+      operation.on("error", reject);
+    });
+    return {
+      cols: ['Result'],
+      connId: this.getId(),
+      messages: [{ date: new Date(), message: `DDL statement executed successfully`}],
+      results: [{Result: 'Success'}],
       query: sql,
       requestId: opt.requestId,
       resultId: generateId(),
