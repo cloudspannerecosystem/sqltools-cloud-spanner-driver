@@ -2,7 +2,7 @@
   "name": "google-cloud-spanner-driver",
   "displayName": "Google Cloud Spanner Driver",
   "description": "Google Cloud Spanner Driver for SQLTools",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "engines": {
     "vscode": "^1.42.0"
   },
