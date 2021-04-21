@@ -34,7 +34,11 @@
     },
     "emulatorPort": {
       "title": "Emulator port",
-      "type": "string"
+      "type": "number"
+    },
+    "maxQueryResults": {
+      "title": "Max query results",
+      "type": "number"
     }
   },
   "required": [
