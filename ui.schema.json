@@ -3,5 +3,6 @@
   "credentialsKeyFile": { "ui:widget": "file", "ui:help": "Credentials file to use to connect to Cloud Spanner. This is only required if the connection should use other credentials than the default credentials of the environment. Ignored for emulator connections." },
   "connectToEmulator": { "ui:help": "Connects to a Spanner emulator instance instead of to Google Cloud. The instance and database specified in the settings above will automatically be created on the emulator if these do not already exist. The emulator must have been started before you can connect to it." },
   "emulatorHost": { "ui:help": "The host name where the emulator is running. Defaults to 'localhost', and is only required if 'Connect to emulator' is enabled and the emulator is not running on localhost." },
-  "emulatorPort": { "ui:help": "The port number where the emulator is running. Defaults to '9010', and is only required if 'Connect to emulator' is enabled and the emulator is not running on port 9010 (gRPC)." }
+  "emulatorPort": { "ui:help": "The port number where the emulator is running. Defaults to '9010', and is only required if 'Connect to emulator' is enabled and the emulator is not running on port 9010 (gRPC)." },
+  "maxQueryResults": { "ui:help": "The maximum number of results allowed in the result of a query. The default is 100,000. Increasing this value will allow you to run queries that return more results, but at the cost of additional memory consumption, as all query results will be loaded into memory." }
 }

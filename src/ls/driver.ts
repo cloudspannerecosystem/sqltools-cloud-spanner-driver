@@ -26,10 +26,10 @@ type DriverLib = Database;
 type DriverOptions = SpannerOptions;
 
 /**
- * Max number of results allowed in a query. This prevents out-of-memory errors or queries that run
+ * Default max number of results allowed in a query. This prevents out-of-memory errors or queries that run
  * for an unreasonable long time if the user forgets to add a limit clause to the query.
  */
-const MAX_QUERY_RESULTS = 100000;
+const DEFAULT_MAX_QUERY_RESULTS = 100000;
 
 export default class CloudSpannerDriver extends AbstractDriver<DriverLib, DriverOptions> implements IConnectionDriver {
   private _databaseId: string;
@@ -72,6 +72,7 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
         await operation.promise();
       }
     }
+    this.credentials.maxQueryResults = this.credentials.maxQueryResults || DEFAULT_MAX_QUERY_RESULTS;
     const database = instance.database(this.credentials.database);
 
     this._databaseId = this.credentials.database;
@@ -123,12 +124,12 @@ export default class CloudSpannerDriver extends AbstractDriver<DriverLib, Driver
     const countQuery = `SELECT COUNT(*) FROM (${sql})`;
     const [count] = await db.run(countQuery);
     const recordCount = count[0][0].value.value;
-    if (recordCount > MAX_QUERY_RESULTS) {
+    if (recordCount > this.credentials.maxQueryResults) {
       return {
         cols: ['Error'],
         connId: this.getId(),
-        messages: [{ date: new Date(), message: `Query result is too large with ${recordCount} results. Limit the query results to max ${MAX_QUERY_RESULTS} and rerun the query.`}],
-        results: [{Error: `Query result is too large with ${recordCount} results. Limit the query results to max ${MAX_QUERY_RESULTS} and rerun the query.`}],
+        messages: [{ date: new Date(), message: `Query result is too large with ${recordCount} results. Limit the query results to max ${this.credentials.maxQueryResults} and rerun the query.`}],
+        results: [{Error: `Query result is too large with ${recordCount} results. Limit the query results to max ${this.credentials.maxQueryResults} and rerun the query.`}],
         query: sql,
         requestId: opt.requestId,
         resultId: generateId(),
